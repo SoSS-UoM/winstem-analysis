@@ -1,0 +1,140 @@
+---
+title: "Women in STEM in the Western Balkans and Beyond"
+author: "Tanja"
+date: "`r Sys.Date()`"
+output: 
+#  pdf_document
+  html_document:
+    theme: "yeti"
+    toc: true
+    toc_float: true
+    df_print: kable
+    code_folding: show
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  warning = FALSE,
+  message = FALSE
+)
+
+library(tidyverse)
+library(readr)
+library(knitr)
+```
+
+## Introduction
+
+This analysis uses publicly available data on the proportion of women in STEM education and research across the Western Balkans, Georgia, and Kazakhstan. The aim is to demonstrate how open data and R can help us better understand gender inequalities in science and technology, while also offering journalists practical tools for transparent and visually engaging data communication.
+
+## How to Read and Use the Data
+
+These data represent the share of women in education and research in the fields of science, technology, engineering, and mathematics (STEM). Each value in the table is the percentage of women relative to the total number of students or researchers in the given field. Where data were not available, values are marked as "NA".
+
+As journalists, it's important to keep in mind:
+
+- Data do not tell the whole story, but they can raise questions and highlight trends.
+- Visualisations help us detect patterns more quickly than reading through tables.
+- These visualisations can support your storytelling around gender inequality in education and science.
+
+## Tabular View of the Data
+
+Although this dataset is small and easy to read in table form, it still contains valuable insights that can be more clearly revealed through visualisation — highlighting patterns, differences, and potential relationships between indicators.
+
+```{r display-table}
+data <- read_csv("data/women_in_stem_westbalkan_ge_kz.csv")
+kable(data, caption = "The share of women in STEM education and research")
+```
+
+## Visualisations: Types and Why We Use Them
+
+In this document, we use two basic types of charts:
+
+1. **Bar Chart (Column Diagram)**
+   - We use it to show the share of women in engineering education by country.
+   - A bar chart is the most intuitive way to compare values across different categories (e.g. countries).
+
+2. **Scatter Plot (Scatter Diagram)**
+   - We use it to compare two indicators at the same time: the share of women in engineering research and in the natural sciences.
+   - A scatter plot is useful for revealing relationships — for example, do countries with more women in the natural sciences also have more women in engineering research?
+
+## Visualisation 1: Women Among Engineering Students
+
+```{r plot-engineering-students, fig.width=8, fig.height=5}
+ggplot(data, aes(x = reorder(Country, `Engineering_Students_Women(%)`),
+                 y = `Engineering_Students_Women(%)`)) +
+  geom_col(fill = "#3B9AB2", color = "black") +
+  coord_flip() +
+  geom_text(aes(label = round(`Engineering_Students_Women(%)`, 1)), hjust = -0.1, size = 3.5) +
+  labs(
+    title = "Share of Women Among Engineering Students",
+    subtitle = "Data for the Western Balkans, Georgia, and Kazakhstan",
+    x = NULL,
+    y = "Procenat (%)"
+  ) +
+  theme_minimal(base_size = 13)  +
+  theme(panel.border = element_rect(color = "black", fill = NA, linewidth = 0.7)) +
+  theme(plot.title = element_text(face = "bold"),
+        axis.text.x = element_text(size = 11),
+        axis.text.y = element_text(size = 11)) +
+  ylim(0, 50)
+```
+
+**Interpretation:**  
+The bar chart helps us quickly identify which countries have a higher or lower proportion of women among engineering students. Countries such as North Macedonia and Bosnia and Herzegovina show a higher percentage of women, whereas Georgia has a significantly lower proportion. This could be a starting point for a journalistic question: *Why are there so few women in engineering studies in Georgia?* Or: *What are countries like North Macedonia doing differently?*
+
+## Visualisation 2: Women Researchers in Engineering and Natural Sciences
+
+```{r plot-researchers-comparison, fig.width=7, fig.height=6}
+ggplot(data, aes(x = `Engineering_Researchers_Women(%)`,
+                 y = `Natural_Sci_Researchers_Women(%)`, label = Country)) +
+  geom_point(shape = 21, fill = "#F21A00", color = "black", size = 4, stroke = 0.8)+
+  geom_text(vjust = -1.2, size = 3.2) +
+  labs(
+  title = "Participation of Women in Research",
+  subtitle = "Engineering versus Natural Sciences",
+  x = "Women Researchers in Engineering (%)",
+  y = "Women Researchers in Natural Sciences (%)"
+  ) +
+  theme_minimal(base_size = 13) +
+  xlim(34, 46) +
+  ylim(45, 60) +
+  theme(
+    plot.title = element_text(face = "bold"),
+        axis.text = element_text(size = 11),
+        axis.title = element_text(size = 12),
+    panel.border = element_rect(color = "black", fill = NA, linewidth = 0.7))
+```
+
+**Interpretation:**  
+This visualisation uses a scatter plot to show the relationship between two research fields. Most countries have a higher percentage of women in natural sciences than in engineering. This suggests there may be systemic barriers preventing women from entering technical research roles.
+
+**Questions for Reflection:**
+
+- Is there a link between education and research positions?
+- Are there differences in funding or employment opportunities between these fields?
+- How do science employment policies differ across countries?
+
+## Conclusion
+
+One of the greatest advantages of working with data is the ability to clearly and convincingly communicate inequalities that might otherwise remain buried in tables and statistical reports. Visualisations not only make complex information easier to understand but also create emotional and political impact that encourages audiences to think and act.
+
+Visually presenting disparities—such as differences in women's representation in education or research—makes those inequalities undeniable and accessible. In this way, journalists can:
+
+- Clearly and powerfully display gender gaps;
+- Highlight where data is missing and demand its publication;
+- Hold institutions accountable through precise, visually striking questions and comparisons.
+
+With just two simple visualisations in R, we have the foundation for multiple journalistic stories. Data doesn’t give us all the answers, but it leads us to the right questions. These methods allow you to:
+
+- Ask evidence-based questions;
+- Present gender disparities clearly and impactfully;
+- Push for greater institutional transparency and accountability.
+
+## Next Steps
+
+- Upload this analysis to GitHub with a brief explanation.
+- Create a template for other journalists to use with their own datasets.
+- Develop a story using a mix of data and quotes from women in these sectors.
+- Engage the public in debate by sharing visualisations on social media or as infographics.

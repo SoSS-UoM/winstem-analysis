@@ -1,0 +1,139 @@
+---
+title: "Žene u STEM-u na Zapadnom Balkanu i šire"
+author: "Tanja"
+date: "`r Sys.Date()`"
+output: 
+#  pdf_document
+  html_document:
+    theme: "yeti"
+    toc: true
+    toc_float: true
+    df_print: kable
+    code_folding: show
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  warning = FALSE,
+  message = FALSE
+)
+
+library(tidyverse)
+library(readr)
+library(knitr)
+```
+
+## Uvod
+
+Ova analiza koristi javno dostupne podatke o udelu žena u STEM obrazovanju i istraživanju na Zapadnom Balkanu, Gruziji i Kazahstanu. Cilj je da se pokaže kako otvoreni podaci i R mogu pomoći u boljem razumevanju rodnih nejednakosti u nauci i tehnologiji, kao i da novinarkama ponude konkretne alate za transparentnu i vizuelno upečatljivu komunikaciju podataka.
+
+## Kako čitati i koristiti podatke
+
+Ovi podaci predstavljaju udeo žena u obrazovanju i istraživanju u oblasti prirodnih nauka, tehnologije, inženjerstva i matematike (STEM). Svaka vrednost u tabeli je procenat žena u odnosu na ukupni broj studenata ili istraživača u datoj oblasti. Tamo gde nije bilo dostupnih podataka, vrednosti su označene kao "NA".
+
+Kao novinarke, važno je da znate:
+
+- Podaci ne govore sve, ali mogu pokrenuti pitanja i ukazati na trendove.
+- Vizualizacije pomažu da se obrasci u podacima uoče brže nego čitanjem tabela.
+- Ove vizualizacije vam mogu pomoći da oblikujete priče o rodnoj neravnopravnosti u obrazovanju i nauci.
+
+## Tabelarni prikaz podataka
+
+Iako je dataset mali i lako pregledan u tabelarnom obliku, iz njega se ipak može izvući više informacija vizualizacijom koja ističe obrasce, razlike i moguće odnose između pokazatelja.
+
+```{r display-table}
+data <- read_csv("data/women_in_stem_westbalkan_ge_kz.csv")
+kable(data, caption = "Udeo žena u STEM obrazovanju i istraživanju")
+```
+
+## Vizualizacije: vrste i zašto ih koristimo
+
+U ovom dokumentu koristimo dve osnovne vrste grafikona:
+
+1. **Bar grafikon (stubičasti dijagram)**
+   - Koristimo ga da prikažemo udeo žena u inženjerskom obrazovanju po zemljama.
+   - Bar grafikon je najintuitivniji način da se porede vrednosti između različitih kategorija (npr. država).
+
+2. **Scatter grafikon (raspršeni dijagram)**
+   - Koristimo ga da uporedimo dva pokazatelja istovremeno: udeo žena u istraživanju u inženjerstvu i u prirodnim naukama.
+   - Scatter grafikon je koristan za otkrivanje odnosa: npr. da li zemlje koje imaju više žena u prirodnim naukama imaju i više žena u inženjerskom istraživanju?
+
+## Vizualizacija 1: Žene među studentima inženjerstva
+
+```{r plot-engineering-students, fig.width=8, fig.height=5}
+ggplot(data, aes(x = reorder(Country, `Engineering_Students_Women(%)`),
+                 y = `Engineering_Students_Women(%)`)) +
+  geom_col(fill = "#3B9AB2", color = "black") +
+  coord_flip() +
+  geom_text(aes(label = round(`Engineering_Students_Women(%)`, 1)), hjust = -0.1, size = 3.5) +
+  labs(
+    title = "Udeo žena među studentima inženjerstva",
+    subtitle = "Podaci za zemlje Zapadnog Balkana, Gruziju i Kazahstan",
+    x = NULL,
+    y = "Procenat (%)"
+  ) +
+  theme_minimal(base_size = 13)  +
+  theme(panel.border = element_rect(color = "black", fill = NA, linewidth = 0.7)) +
+  theme(plot.title = element_text(face = "bold"),
+        axis.text.x = element_text(size = 11),
+        axis.text.y = element_text(size = 11)) +
+  ylim(0, 50)
+```
+
+**Tumačenje:**
+Stubičasti dijagram nam pomaže da odmah vidimo koje zemlje imaju veći ili manji udeo žena među studentima inženjerstva. Zemlje kao što su Severna Makedonija i BiH imaju viši procenat žena, dok Gruzija ima drastično niži. Ovo može biti početna tačka za novinarsko pitanje: *Zašto je u Gruziji tako malo žena u inženjerskim studijama?* Ili: *Šta zemlje poput Makedonije rade drugačije?*
+
+## Vizualizacija 2: Istraživačice u inženjerstvu i prirodnim naukama
+
+```{r plot-researchers-comparison, fig.width=7, fig.height=6}
+ggplot(data, aes(x = `Engineering_Researchers_Women(%)`,
+                 y = `Natural_Sci_Researchers_Women(%)`, label = Country)) +
+  geom_point(shape = 21, fill = "#F21A00", color = "black", size = 4, stroke = 0.8)+
+  geom_text(vjust = -1.2, size = 3.2) +
+  labs(
+    title = "Učešće žena u istraživačkom radu",
+    subtitle = "Inženjerstvo naspram prirodnih nauka",
+    x = "Inženjerke istraživačice (%)",
+    y = "Istraživačice u prirodnim naukama (%)"
+  ) +
+  theme_minimal(base_size = 13) +
+  xlim(34, 46) +
+  ylim(45, 60) +
+  theme(
+    plot.title = element_text(face = "bold"),
+        axis.text = element_text(size = 11),
+        axis.title = element_text(size = 12),
+    panel.border = element_rect(color = "black", fill = NA, linewidth = 0.7))
+```
+
+**Tumačenje:**
+Ova vizualizacija koristi tačkasti grafikon kako bi prikazala odnos između dve oblasti istraživanja. Većina zemalja ima viši procenat žena u prirodnim naukama nego u inženjerstvu. Na osnovu toga možemo zaključiti da postoje sistemske prepreke koje onemogućavaju ženama da se bave tehničkim istraživanjem. 
+
+**Pitanja za razmišljanje:**
+
+- Da li postoji veza između obrazovanja i istraživačkih pozicija?
+- Da li postoji razlika u finansiranju ili zapošljavanju između ovih oblasti?
+- Kako se politika zapošljavanja u nauci razlikuje između zemalja?
+
+## Zaključak
+
+Jedna od najvećih prednosti rada sa podacima jeste mogućnost da novinarke jasno i ubedljivo komuniciraju nejednakosti koje bi inače ostale skrivene u tabelama i statističkim izveštajima. Vizualizacije ne samo da olakšavaju razumevanje kompleksnih informacija, već omogućavaju i emocionalni i politički utisak koji podstiče publiku na razmišljanje i akciju.
+
+Vizuelno prikazivanje razlika, kao što su razlike u zastupljenosti žena u obrazovanju ili istraživačkom radu, čini te razlike neosporivim i pristupačnim. Na taj način novinarke mogu:
+
+- Prikazati rodne razlike jasno i upečatljivo;
+- Pokazati gde podaci nedostaju i zahtevati njihovu objavu;
+- Pozvati institucije na veću transparentnost i odgovornost kroz precizna, vizuelno jasna pitanja i poređenja.
+
+Kroz dve jednostavne vizualizacije u R-u dobili smo osnovu za više novinarskih priča. Podaci nam ne daju sve odgovore, ali nas vode ka pravim pitanjima. Ove metode omogućavaju da:
+
+- Postavite pitanja utemeljena na dokazima;
+- Prikažete rodne razlike jasno i vizuelno upečatljivo;
+- Pozovete institucije na veću transparentnost i odgovornost.
+
+## Dalji koraci
+- Postavite ovu analizu na GitHub uz jednostavno objašnjenje.
+- Napravite šablon koji druge novinarke mogu koristiti sa svojim podacima.
+- Razvijte priču koristeći kombinaciju brojki i izjava žena iz ovih sektora.
+- Uključite javnost u debatu koristeći vizualizacije na društvenim mrežama ili kao infografiku.
